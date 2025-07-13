@@ -4,8 +4,27 @@
   <meta charset="utf-8">
   <title>SpaceInvasion</title>
   <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#00ff88">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <style>
+    /* Prevenir zoom en inputs en iOS */
+    input, textarea, select {
+      font-size: 16px !important;
+    }
+    
+    /* Prevenir selección de texto en controles */
+    * {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+  </style>
 </head>
 <body>
   <app-root></app-root>

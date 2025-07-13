@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, HostListener, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, HostListener, ViewChild, ElementRef, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 interface GameObject {
@@ -40,6 +40,7 @@ interface Bullet extends GameObject {
           <p>← → Mover nave</p>
           <p>ESPACIO Disparar</p>
           <p>P Pausar</p>
+          <p>📱 Usa los controles táctiles en móvil</p>
         </div>
       </div>
 
@@ -51,14 +52,52 @@ interface Bullet extends GameObject {
           <div class="level">Nivel: {{ currentLevel }}</div>
         </div>
         
-        <canvas #gameCanvas 
-                [width]="canvasWidth" 
-                [height]="canvasHeight"
-                class="game-canvas">
-        </canvas>
+        <div class="canvas-wrapper">
+          <canvas #gameCanvas 
+                  [width]="canvasWidth" 
+                  [height]="canvasHeight"
+                  class="game-canvas">
+          </canvas>
+        </div>
         
-        <div class="game-controls">
-          <button (click)="pauseGame()" class="control-button">Pausar (P)</button>
+        <!-- Controles táctiles para móvil -->
+        <div class="mobile-controls">
+          <div class="movement-controls">
+            <button 
+              class="control-btn left-btn" 
+              (touchstart)="onTouchStart('left')" 
+              (touchend)="onTouchEnd('left')"
+              (mousedown)="onMouseDown('left')"
+              (mouseup)="onMouseUp('left')"
+              (mouseleave)="onMouseUp('left')">
+              ←
+            </button>
+            <button 
+              class="control-btn right-btn" 
+              (touchstart)="onTouchStart('right')" 
+              (touchend)="onTouchEnd('right')"
+              (mousedown)="onMouseDown('right')"
+              (mouseup)="onMouseUp('right')"
+              (mouseleave)="onMouseUp('right')">
+              →
+            </button>
+          </div>
+          <div class="action-controls">
+            <button 
+              class="control-btn shoot-btn" 
+              (touchstart)="onTouchStart('shoot')" 
+              (touchend)="onTouchEnd('shoot')"
+              (mousedown)="onMouseDown('shoot')"
+              (mouseup)="onMouseUp('shoot')"
+              (mouseleave)="onMouseUp('shoot')">
+              🔥
+            </button>
+            <button 
+              class="control-btn pause-btn" 
+              (click)="pauseGame()">
+              ⏸️
+            </button>
+          </div>
         </div>
       </div>
 
@@ -80,13 +119,86 @@ interface Bullet extends GameObject {
   `,
   styles: [`
     .game-container {
-      width: 800px;
-      height: 600px;
+      width: 100vw;
+      max-width: 800px;
+      height: 100vh;
+      max-height: 1000px;
+      margin: 0 auto;
       background: #000;
       border: 2px solid #00ff88;
       border-radius: 10px;
       position: relative;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+    }
+    .canvas-wrapper {
+      width: 100%;
+      flex: 1 1 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .game-canvas {
+      width: 100%;
+      height: auto;
+      max-width: 800px;
+      max-height: 600px;
+      background: #000;
+      display: block;
+      margin: 0 auto;
+      border-radius: 8px;
+      box-shadow: 0 0 24px #00ff88a0;
+    }
+    @media (max-width: 800px) {
+      .game-container {
+        width: 100vw;
+        height: 100vh;
+        max-width: 100vw;
+        max-height: 100vh;
+        border-radius: 0;
+      }
+      .game-canvas {
+        width: 100vw;
+        height: auto;
+        max-width: 100vw;
+        max-height: 60vw;
+      }
+    }
+    @media (max-width: 480px) {
+      .game-container {
+        width: 100vw;
+        height: 100vh;
+        max-width: 100vw;
+        max-height: 100vh;
+        border-radius: 0;
+      }
+      .game-canvas {
+        width: 100vw;
+        height: auto;
+        max-width: 100vw;
+        max-height: 60vw;
+      }
+      .mobile-controls {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        background: rgba(0,0,0,0.7);
+        padding-bottom: env(safe-area-inset-bottom, 10px);
+        z-index: 100;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .control-btn {
+        width: 48px;
+        height: 48px;
+        font-size: 20px;
+      }
     }
 
     .menu-screen, .pause-screen, .game-over-screen {
@@ -188,10 +300,140 @@ interface Bullet extends GameObject {
     .control-button:hover {
       background: rgba(0, 255, 136, 0.3);
     }
+
+    /* Controles móviles */
+    .mobile-controls {
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      z-index: 10;
+    }
+
+    .movement-controls {
+      display: flex;
+      gap: 15px;
+    }
+
+    .action-controls {
+      display: flex;
+      gap: 15px;
+    }
+
+    .control-btn {
+      width: 60px;
+      height: 60px;
+      border: none;
+      border-radius: 50%;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      background: linear-gradient(145deg, #1a3a1a, #0d1f0d);
+      color: #00ff88;
+      border: 2px solid #00ff88;
+      box-shadow: 
+        0 4px 8px rgba(0, 0, 0, 0.3),
+        inset 0 2px 4px rgba(0, 255, 136, 0.1),
+        0 0 10px rgba(0, 255, 136, 0.3);
+    }
+
+    .control-btn:active {
+      transform: scale(0.95);
+      box-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.3),
+        inset 0 1px 2px rgba(0, 255, 136, 0.2),
+        0 0 15px rgba(0, 255, 136, 0.5);
+    }
+
+    .control-btn:hover {
+      background: linear-gradient(145deg, #0d1f0d, #1a3a1a);
+      box-shadow: 
+        0 6px 12px rgba(0, 0, 0, 0.4),
+        inset 0 2px 4px rgba(0, 255, 136, 0.2),
+        0 0 20px rgba(0, 255, 136, 0.4);
+    }
+
+    .left-btn, .right-btn {
+      background: linear-gradient(145deg, #1a3a1a, #0d1f0d);
+      color: #00ff88;
+    }
+
+    .shoot-btn {
+      background: linear-gradient(145deg, #3a1a1a, #1f0d0d);
+      color: #ff4444;
+      border-color: #ff4444;
+      box-shadow: 
+        0 4px 8px rgba(0, 0, 0, 0.3),
+        inset 0 2px 4px rgba(255, 68, 68, 0.1),
+        0 0 10px rgba(255, 68, 68, 0.3);
+    }
+
+    .shoot-btn:hover {
+      background: linear-gradient(145deg, #1f0d0d, #3a1a1a);
+      box-shadow: 
+        0 6px 12px rgba(0, 0, 0, 0.4),
+        inset 0 2px 4px rgba(255, 68, 68, 0.2),
+        0 0 20px rgba(255, 68, 68, 0.4);
+    }
+
+    .pause-btn {
+      background: linear-gradient(145deg, #1a1a3a, #0d0d1f);
+      color: #4488ff;
+      border-color: #4488ff;
+      box-shadow: 
+        0 4px 8px rgba(0, 0, 0, 0.3),
+        inset 0 2px 4px rgba(68, 136, 255, 0.1),
+        0 0 10px rgba(68, 136, 255, 0.3);
+    }
+
+    .pause-btn:hover {
+      background: linear-gradient(145deg, #0d0d1f, #1a1a3a);
+      box-shadow: 
+        0 6px 12px rgba(0, 0, 0, 0.4),
+        inset 0 2px 4px rgba(68, 136, 255, 0.2),
+        0 0 20px rgba(68, 136, 255, 0.4);
+    }
+
+    /* Ocultar controles en pantallas grandes */
+    @media (min-width: 768px) {
+      .mobile-controls {
+        display: none;
+      }
+    }
+
+    /* Ajustes para pantallas pequeñas */
+    @media (max-width: 480px) {
+      .control-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+      }
+      
+      .mobile-controls {
+        padding: 0 10px;
+        bottom: 10px;
+      }
+      
+      .movement-controls, .action-controls {
+        gap: 10px;
+      }
+    }
   `]
 })
 export class GameComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('gameCanvas', { static: false }) gameCanvas!: ElementRef<HTMLCanvasElement>;
+  @Output() win = new EventEmitter<void>();
   
   canvasWidth = 800;
   canvasHeight = 600;
@@ -228,6 +470,7 @@ export class GameComponent implements OnInit, AfterViewInit, OnDestroy {
   private keys: { [key: string]: boolean } = {};
   private canvasReady = false;
   private lastTimestamp: number = 0;
+  private touchKeys: { [key: string]: boolean } = {};
   
   private backgroundMusic: HTMLAudioElement | null = null;
   private shootSound: HTMLAudioElement | null = null;
@@ -304,6 +547,29 @@ export class GameComponent implements OnInit, AfterViewInit, OnDestroy {
   onKeyUp(event: KeyboardEvent) {
     this.keys[event.code] = false;
   }
+
+  // Métodos para controles táctiles
+  onTouchStart(action: string) {
+    this.touchKeys[action] = true;
+    if (action === 'shoot') {
+      this.shoot();
+    }
+  }
+
+  onTouchEnd(action: string) {
+    this.touchKeys[action] = false;
+  }
+
+  onMouseDown(action: string) {
+    this.touchKeys[action] = true;
+    if (action === 'shoot') {
+      this.shoot();
+    }
+  }
+
+  onMouseUp(action: string) {
+    this.touchKeys[action] = false;
+  }
   
   initializeGame() {
     this.player.x = this.canvasWidth / 2 - this.player.width / 2;
@@ -316,6 +582,7 @@ export class GameComponent implements OnInit, AfterViewInit, OnDestroy {
     this.enemies = [];
     this.playerBullets = [];
     this.enemyBullets = [];
+    this.touchKeys = {}; // Resetear controles táctiles
     this.createEnemies();
   }
   
@@ -494,11 +761,12 @@ export class GameComponent implements OnInit, AfterViewInit, OnDestroy {
   
   updatePlayer(delta: number) {
     const moveAmount = this.basePlayerSpeed * delta;
-    if (this.keys['ArrowLeft'] && this.player.x > 0) {
+    // Controles de teclado
+    if ((this.keys['ArrowLeft'] || this.touchKeys['left']) && this.player.x > 0) {
       this.player.x -= moveAmount;
       if (this.player.x < 0) this.player.x = 0;
     }
-    if (this.keys['ArrowRight'] && this.player.x < this.canvasWidth - this.player.width) {
+    if ((this.keys['ArrowRight'] || this.touchKeys['right']) && this.player.x < this.canvasWidth - this.player.width) {
       this.player.x += moveAmount;
       if (this.player.x > this.canvasWidth - this.player.width) this.player.x = this.canvasWidth - this.player.width;
     }
@@ -565,6 +833,7 @@ export class GameComponent implements OnInit, AfterViewInit, OnDestroy {
               this.levelMessage = '!Yoou win!';
               this.showLevelMessage = true;
               this.playWinSound();
+              this.win.emit(); // EMITIR EVENTO DE VICTORIA
               // No ocultar el mensaje, dejarlo fijo
               // Aquí puedes poner lógica de victoria/final
             }
