@@ -36,11 +36,11 @@ interface Bullet extends GameObject {
         <p>¡Defiende la Tierra!</p>
         <button (click)="startGame()" class="start-button">Iniciar Juego</button>
         <div class="instructions">
-          <h3>Instrucciones:</h3>
-          <p>← → Mover nave</p>
-          <p>ESPACIO Disparar</p>
-          <p>P Pausar</p>
-          <p>📱 Usa los controles táctiles en móvil</p>
+          <h3>🎯 Controles del Juego</h3>
+          <p>Flechas ← → Mover nave espacial</p>
+          <p>Barra ESPACIO Disparar láser</p>
+          <p>Tecla P Pausar juego</p>
+          <p>Controles táctiles en dispositivos móviles</p>
         </div>
       </div>
 
@@ -110,10 +110,47 @@ interface Bullet extends GameObject {
 
       <!-- Pantalla de game over -->
       <div *ngIf="gameState === 'gameOver'" class="game-over-screen">
-        <h2>Game Over</h2>
-        <p>Puntuación final: {{ player.score }}</p>
-        <p>Nivel alcanzado: {{ currentLevel }}</p>
-        <button (click)="restartGame()" class="restart-button">Jugar de nuevo</button>
+        <div class="stars-background">
+          <div class="star" *ngFor="let star of [1,2,3,4,5,6,7,8,9,10]"></div>
+        </div>
+        
+        <div class="game-over-content">
+          <h2 class="game-over-title">💀 Game Over</h2>
+          
+          <div class="stats-container">
+            <div class="stat-item">
+              <div class="stat-icon">⭐</div>
+              <div class="stat-label">Puntuación Final</div>
+              <div class="stat-value">{{ player.score }}</div>
+            </div>
+            
+            <div class="stat-item">
+              <div class="stat-icon">👾</div>
+              <div class="stat-label">Nivel Alcanzado</div>
+              <div class="stat-value">{{ currentLevel }}</div>
+            </div>
+          </div>
+          
+          <div class="share-section">
+            <h3>🎯 ¡Comparte tu puntuación!</h3>
+            <div class="social-buttons">
+              <button class="social-btn whatsapp-btn" (click)="shareToWhatsApp()">
+                <span class="social-icon">💬</span>
+                <span class="social-text">WhatsApp</span>
+              </button>
+              <button class="social-btn telegram-btn" (click)="shareToTelegram()">
+                <span class="social-icon">✈️</span>
+                <span class="social-text">Telegram</span>
+              </button>
+              <button class="social-btn instagram-btn" (click)="shareToInstagram()">
+                <span class="social-icon">📸</span>
+                <span class="social-text">Instagram</span>
+              </button>
+            </div>
+          </div>
+          
+          <button (click)="restartGame()" class="restart-button">🔄 Jugar de nuevo</button>
+        </div>
       </div>
     </div>
   `,
@@ -216,11 +253,199 @@ interface Bullet extends GameObject {
       z-index: 10;
     }
 
-    .menu-screen h2, .pause-screen h2, .game-over-screen h2 {
+    .menu-screen h2, .pause-screen h2 {
       font-size: 2.5rem;
       color: #00ff88;
       margin-bottom: 20px;
       text-shadow: 0 0 10px #00ff88;
+    }
+
+    /* Estilos específicos para Game Over */
+    .game-over-screen {
+      background: linear-gradient(135deg, #1a0033 0%, #330066 50%, #660099 100%);
+    }
+
+    .stars-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .star {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: #fff;
+      border-radius: 50%;
+      animation: twinkle 2s infinite;
+    }
+
+    .star:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+    .star:nth-child(2) { top: 20%; left: 80%; animation-delay: 0.3s; }
+    .star:nth-child(3) { top: 30%; left: 20%; animation-delay: 0.6s; }
+    .star:nth-child(4) { top: 40%; left: 70%; animation-delay: 0.9s; }
+    .star:nth-child(5) { top: 50%; left: 15%; animation-delay: 1.2s; }
+    .star:nth-child(6) { top: 60%; left: 85%; animation-delay: 1.5s; }
+    .star:nth-child(7) { top: 70%; left: 25%; animation-delay: 1.8s; }
+    .star:nth-child(8) { top: 80%; left: 75%; animation-delay: 2.1s; }
+    .star:nth-child(9) { top: 90%; left: 35%; animation-delay: 2.4s; }
+    .star:nth-child(10) { top: 15%; left: 60%; animation-delay: 2.7s; }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .game-over-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 600px;
+      padding: 20px;
+    }
+
+    .game-over-title {
+      font-size: 3rem;
+      color: #ff4444;
+      margin-bottom: 30px;
+      text-shadow: 0 0 15px #ff4444;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
+    .stats-container {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      background: rgba(0, 255, 136, 0.1);
+      border: 2px solid #00ff88;
+      border-radius: 15px;
+      padding: 25px;
+      min-width: 200px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+      transition: transform 0.3s ease;
+    }
+
+    .stat-item:hover {
+      transform: translateY(-5px);
+    }
+
+    .stat-icon {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+
+    .stat-label {
+      color: #00ff88;
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-shadow: 0 0 5px #00ff88;
+    }
+
+    .stat-value {
+      color: #ffffff;
+      font-size: 2.5rem;
+      font-weight: bold;
+      text-shadow: 0 0 10px #ffffff;
+    }
+
+    .share-section {
+      margin-bottom: 30px;
+    }
+
+    .share-section h3 {
+      color: #00ff88;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      text-shadow: 0 0 8px #00ff88;
+    }
+
+    .social-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .social-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 25px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 120px;
+      justify-content: center;
+    }
+
+    .twitter-btn {
+      background: #1da1f2;
+      color: white;
+    }
+
+    .twitter-btn:hover {
+      background: #0d8bd9;
+      transform: scale(1.05);
+    }
+
+    .facebook-btn {
+      background: #4267b2;
+      color: white;
+    }
+
+    .facebook-btn:hover {
+      background: #365899;
+      transform: scale(1.05);
+    }
+
+    .whatsapp-btn {
+      background: #25d366;
+      color: white;
+    }
+
+    .whatsapp-btn:hover {
+      background: #1ea952;
+      transform: scale(1.05);
+    }
+
+    .telegram-btn {
+      background: #229ED9;
+      color: white;
+    }
+    .telegram-btn:hover {
+      background: #1787b7;
+      transform: scale(1.05);
+    }
+    .instagram-btn {
+      background: linear-gradient(45deg, #f9ce34, #ee2a7b, #6228d7);
+      color: white;
+    }
+    .instagram-btn:hover {
+      filter: brightness(1.1);
+      transform: scale(1.05);
+    }
+
+    .social-icon {
+      font-size: 1.2rem;
+    }
+
+    .social-text {
+      font-size: 0.9rem;
     }
 
     .start-button, .resume-button, .restart-button {
@@ -244,16 +469,71 @@ interface Bullet extends GameObject {
     .instructions {
       margin-top: 30px;
       text-align: center;
+      background: rgba(0, 255, 136, 0.1);
+      border: 2px solid #00ff88;
+      border-radius: 15px;
+      padding: 25px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .instructions h3 {
       color: #00ff88;
-      margin-bottom: 10px;
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+      text-shadow: 0 0 8px #00ff88;
+      font-weight: bold;
+      letter-spacing: 1px;
     }
 
     .instructions p {
-      margin: 5px 0;
-      color: #cccccc;
+      margin: 12px 0;
+      font-size: 1.1rem;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .instructions p:hover {
+      background: rgba(0, 255, 136, 0.2);
+      transform: translateX(5px);
+    }
+
+    .instructions p:before {
+      content: "🎮";
+      font-size: 1.2rem;
+    }
+
+    .instructions p:nth-child(2):before { content: "⬅️➡️"; }
+    .instructions p:nth-child(3):before { content: "🔥"; }
+    .instructions p:nth-child(4):before { content: "⏸️"; }
+    .instructions p:nth-child(5):before { content: "📱"; }
+
+    @media (max-width: 600px) {
+      .instructions {
+        margin: 20px 15px;
+        padding: 20px 15px;
+        max-width: calc(100% - 30px);
+      }
+      
+      .instructions h3 {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+      }
+      
+      .instructions p {
+        font-size: 1rem;
+        margin: 10px 0;
+        padding: 6px 0;
+      }
     }
 
     .game-screen {
@@ -1116,5 +1396,39 @@ export class GameComponent implements OnInit, AfterViewInit, OnDestroy {
       } as any);
     }
     this.playEnemyShootSound();
+  }
+
+  // Métodos para compartir en redes sociales
+  shareToTwitter() {
+    const text = `¡Conseguí ${this.player.score} puntos en Space Invasion! 🚀 Nivel ${this.currentLevel} 👾 ¡Juega ahora!`;
+    const url = window.location.href;
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+    window.open(twitterUrl, '_blank');
+  }
+
+  shareToFacebook() {
+    const url = window.location.href;
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+    window.open(facebookUrl, '_blank');
+  }
+
+  shareToWhatsApp() {
+    const text = `¡Conseguí ${this.player.score} puntos en Space Invasion! 🚀 Nivel ${this.currentLevel} 👾 ¡Juega ahora!`;
+    const url = window.location.href;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`;
+    window.open(whatsappUrl, '_blank');
+  }
+
+  shareToTelegram() {
+    const text = `¡Conseguí ${this.player.score} puntos en Space Invasion! 🚀 Nivel ${this.currentLevel} 👾 ¡Juega ahora!`;
+    const url = window.location.href;
+    const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+    window.open(telegramUrl, '_blank');
+  }
+
+  shareToInstagram() {
+    // Instagram no permite compartir directamente desde web, así que abrimos el perfil del juego o mostramos un mensaje
+    const instagramProfile = 'https://www.instagram.com/tu_perfil_juego/'; // Cambia por el perfil real
+    window.open(instagramProfile, '_blank');
   }
 } 

@@ -26,10 +26,6 @@ import { GameComponent } from './game/game.component';
       </div>
     </div>
     <div class="app-container">
-      <header class="game-header">
-        <h1>🚀 Space Invasion</h1>
-        <p>¡Defiende la Tierra de los invasores alienígenas!</p>
-      </header>
       <main class="game-main">
         <app-game (win)="showSocialWin = true"></app-game>
         <div *ngIf="showSocialWin" class="social-win-bar">
@@ -50,9 +46,6 @@ import { GameComponent } from './game/game.component';
           </div>
         </div>
       </main>
-      <footer class="game-footer">
-        <p>Usa las flechas ← → para moverte, ESPACIO para disparar</p>
-      </footer>
     </div>
   `,
   styles: [`
@@ -118,39 +111,12 @@ import { GameComponent } from './game/game.component';
       flex-direction: column;
     }
 
-    .game-header {
-      text-align: center;
-      padding: 20px;
-      background: rgba(0, 0, 0, 0.3);
-    }
-
-    .game-header h1 {
-      margin: 0;
-      font-size: 2.5rem;
-      color: #00ff88;
-      text-shadow: 0 0 10px #00ff88;
-    }
-
-    .game-header p {
-      margin: 10px 0 0 0;
-      color: #cccccc;
-      font-size: 1.1rem;
-    }
-
     .game-main {
       flex: 1;
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 20px;
-    }
-
-    .game-footer {
-      text-align: center;
-      padding: 15px;
-      background: rgba(0, 0, 0, 0.3);
-      color: #888888;
-      font-size: 0.9rem;
+      padding: 0;
     }
     .social-win-bar {
       display: flex;
